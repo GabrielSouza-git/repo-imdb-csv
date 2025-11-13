@@ -222,7 +222,7 @@ O Job foi conclúido com sucesso, agora vamos ver a tabela foi criado no BigQuer
 
 
 ### Passo 6: Checkando os dados no BigQuery
-Lembram que criamos o dataset no [Passo 3](https://github.com/GabrielSouza-git/repo-imdb-csv/edit/develop/README.md#passo-3-criando-o-dataset-no-bigquery)?
+Lembram que criamos o dataset no Passo 3?
 Agora a nossa tabela foi materializada aqui 
 
 </div>

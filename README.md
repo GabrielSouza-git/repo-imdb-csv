@@ -102,29 +102,46 @@ Com o arquivo salvo no GCS, bora preparar o destino dos dados no **BigQuery**.
 <img width="265" height="680" alt="Image" src="https://github.com/user-attachments/assets/500a4d08-8380-4056-9e50-a97f278cd4c6" />
 </div>
 
+
+### Passo 4: Configurando o ambiente virtual (venv)
+Antes de executar o projeto, recomenda-se criar um ambiente virtual para isolar as dependências.
+#### 4.1 - Criar o ambiente virtual
+```bash
+python -m venv venv
+```
+#### 4.2 - Ativar o ambiente virtual
+```bash
+source venv\Scripts\activate
+```
+#### 4.3 - Instalar as dependências
+```bash
+pip install -r requirements.txt
+```
+
    
-### Passo 4: Estrutura do código
+### Passo 5: Estrutura do código
 Com o bucket e o dataset prontos, chegou a hora de criar o código que vai iniciar o job no Dataflow e fazer todo o processamento dos dados.
 Agora sim é a parte divertida 😎
+Código já pronto: csv_dataflow_imdb.py
 
-#### 4.1 - Importações
+#### 5.1 - Importações
 
 O código importa bibliotecas padrão do Python e módulos do Apache Beam:
 
 
-<img width="639" height="264" alt="Image" src="https://github.com/user-attachments/assets/f2ccc7a1-1f76-4ea2-b044-98d9ee99f0b2" />
+<img width="748" height="276" alt="Image" src="https://github.com/user-attachments/assets/7a2e8c57-affc-4ca8-99d4-7bd6c10d3b7c" />
 </div>
 
 
 ```text
 - csv: leitura segura de linhas CSV.
-- dotenv: carrega variáveis do .env.
 - apache_beam: constrói e executa o pipeline.
 - ReadFromText: lê o arquivo CSV.
 - WriteToBigQuery: grava os dados processados no BigQuery.
+- BigQuery: API para acrescentar descrição na tabela
 ```
 
-#### 4.2 - Configurações principais
+#### 5.2 - Configurações principais
 Temos nossas constantes que centralizam as variáveis do projeto, servindo para facilitar a leitura e manutenção do código.
 
 <img width="472" height="148" alt="Image" src="https://github.com/user-attachments/assets/09abf432-bdc6-42dc-9fd9-ca7889a3bdcf" />
@@ -137,10 +154,10 @@ Temos nossas constantes que centralizam as variáveis do projeto, servindo para 
 - BQ_TABLE = nome que a tabela terá assim que criada
 ```
 
-#### 4.3 - Estrutura e schema
+#### 5.3 - Estrutura e schema
 Colunas esperadas do CSV
 
-A função parse_and_transform usa zip(CSV_COLUMNS, values), então a ordem das colunas no CSV deve ser exatamente igual à lista CSV_COLUMNS, se não, os dados ficarão desalinhados.
+A função **`parse_and_transform`** usa zip(CSV_COLUMNS, values), então a ordem das colunas no CSV deve ser exatamente igual à lista CSV_COLUMNS, se não, os dados ficarão desalinhados.
 
 <img width="689" height="130" alt="Image" src="https://github.com/user-attachments/assets/485b576d-7961-4623-9802-8b3d296bcb67" />
 </div>
@@ -148,16 +165,16 @@ A função parse_and_transform usa zip(CSV_COLUMNS, values), então a ordem das 
 Schema BigQuery
 
 </div>
-<img width="459" height="415" alt="Image" src="https://github.com/user-attachments/assets/9ff5872b-f90e-46e9-96c7-96db559c945e" />
+<img width="1012" height="511" alt="Image" src="https://github.com/user-attachments/assets/76c19333-3706-4eb4-8eed-90138d067f80" />
 </div>
 
 ```text
 - Define o esquema utilizado pelo WriteToBigQuery  
 - Os nomes devem corresponder às chaves dos dicionários gerados na transformação  
-- Tipos BigQuery: STRING, INTEGER, FLOAT.
+- Define a descrição dos campos
 ```
 
-#### 4.4 - Função de transformação 
+#### 5.4 - Função de transformação 
 A função  **`parse_and_transform()`** lê cada linha do CSV, aplica as funções auxiliares **`to_int`** e **`to_float`** para normalizar os tipos, e retorna um dicionário pronto para ingestão no BigQuery.
 (Lembram quando abrimos o arquivo csv para dar uma olhada? O campo Gross era um campo decimal mas era separado por vírgula, então utilizamos a função para retirar a virgula)
 
@@ -167,7 +184,16 @@ A função  **`parse_and_transform()`** lê cada linha do CSV, aplica as funçõ
 </div>
 
 
-#### 4.5 - Pipeline Apache Beam
+#### 5.5 - Adicionar descrição na tabela
+Função para conectar na API do BigQuery e aplicar a descrição da tabela.
+A atualização da descrição é feita via client da biblioteca oficial **`google-cloud-bigquery`**
+
+</div>
+<img width="874" height="218" alt="Image" src="https://github.com/user-attachments/assets/660717fc-fb4b-473e-b816-536a11918a1a" />
+</div>
+
+
+#### 5.6 - Pipeline Apache Beam
 Aqui montamos o fluxo completo de leitura, transformação e escrita no BigQuery, usando o Apache Beam e executando no Google Dataflow.
 
 </div>
@@ -187,7 +213,16 @@ O modo WRITE_TRUNCATE substitui o conteúdo da tabela a cada execução.
 Use WRITE_APPEND caso queira apenas adicionar novos registros.
 ```
 
-### Passo 5: Rodando o código
+
+#### 5.7 - Execução
+O pipeline Dataflow escreve os dados no BigQuery. Ao final, uma chamada à API do BigQuery atualiza a descrição da tabela para documentar seu conteúdo.
+
+</div>
+<img width="744" height="276" alt="Image" src="https://github.com/user-attachments/assets/fb73d8e2-ed50-49d8-9ca4-8c3434ed002b" />
+</div>
+
+
+### Passo 6: Rodando o código
 Agora que já temos tudo configurado, podemos executar o código no terminal
 
 ```bash
@@ -221,7 +256,7 @@ O Job foi conclúido com sucesso, agora vamos ver a tabela foi criado no BigQuer
 
 
 
-### Passo 6: Checkando os dados no BigQuery
+### Passo 7: Checkando os dados no BigQuery
 Lembram que criamos o dataset no Passo 3?
 Agora a nossa tabela foi materializada aqui 
 
@@ -231,17 +266,18 @@ Agora a nossa tabela foi materializada aqui
 
 \
 Ao clicar nela, podemos ver alguns dados sobre ela:
-No menu **`Esquema`** podemos ver o nome do campo, tipagem e descrição (mas nesse caso não passamos nenhuma)
-<img width="1374" height="771" alt="Image" src="https://github.com/user-attachments/assets/2a7724eb-b571-4d8c-aa5d-1dbe14d3bc9a" />
+
+No menu **`Esquema`** podemos ver o nome do campo, tipagem, descrição de cada campo etc
+<img width="1203" height="646" alt="Image" src="https://github.com/user-attachments/assets/4324b618-4534-402a-863d-7846eb4e25a2" />
 
 Na aba **`Detalhes`** podemos ver alguns dados interessantes também:
 
 1. Informações da tabela:
-Id da tabela, data de criação e data de modificação, descrição da tabela (não passamos nenhuma) 
+Id da tabela, data de criação e data de modificação, descrição da tabela etc
 2. Informações de armazenamento:
 Número de linhas e total de bytes lógicos
 </div>
-<img width="1027" height="781" alt="Image" src="https://github.com/user-attachments/assets/c111be58-58ae-466e-bbef-75d8e5b81708" />
+<img width="1024" height="782" alt="Image" src="https://github.com/user-attachments/assets/9127e210-a530-492b-8e24-68c2b818fa54" />
 </div>
 
 
@@ -260,7 +296,7 @@ Pra fazermos querys na tabela é bem simples, podemos clicar em consulta e abrir
 <img width="1168" height="731" alt="Image" src="https://github.com/user-attachments/assets/aea3dccd-3a2c-4718-bc05-bfe1b5b236d6" />
 </div>
 
-### Passo 7: Fazendo consultas no BigQuery
+### Passo 8: Fazendo consultas no BigQuery
 #### 1 - Quais os 10 primeiros filmes com maiores notas no imdb?
 
 ```bash
@@ -315,3 +351,30 @@ limit 5
 </div>
 <img width="884" height="378" alt="Image" src="https://github.com/user-attachments/assets/be19882b-596e-4755-89b4-f6d4c5b6d612" />
 </div>
+
+---
+
+### Finalizado
+E é isso, pessoal!
+Neste projeto eu quis demonstrar, de forma prática como construir um pipeline de ingestão de dados utilizando Google Cloud Storage, Apache Beam, Dataflow e BigQuery, desde o preparo do ambiente até a análise dos dados ingeridos.
+
+O objetivo foi mostrar um fluxo de ponta a ponta, que pode servir tanto como estudo quanto como base para pipelines mais robustos em ambientes de produção.
+Se esse conteúdo te ajudou ou te inspirou a criar algo parecido, já valeu o esforço! 😊
+Fique à vontade para tirar dúvidas e sugerir melhorias.
+
+Obrigado por acompanhar até aqui e até o próximo projeto! 😊👊
+
+
+### Próximos passos??? Quem sabe 👀
+O que pretendo adicionar na próxima versão:
+- Processamento e modelagem no Dataform
+  - Vou criar camadas de transformação utilizando views e tabelas materializadas (staging → intermediate → mart) para organizar os dados de forma mais analítica.
+- Criação de um dashboard no Looker Studio.
+Após modelar os dados no Dataform, vou construir um dashboard no Looker com métricas como:
+  - distribuição de notas dos filmes
+  - receita total por diretor
+  - evolução temporal dos lançamentos
+  - indicadores sobre gêneros, duração e popularidade
+
+
+Essas etapas vão fechar o ciclo completo: ingestão → transformação → análise visual.

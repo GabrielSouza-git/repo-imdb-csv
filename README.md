@@ -67,7 +67,7 @@ Crie uma pasta chamada **`raw`** dentro do seu bucket, é nela que vamos colocar
 </div>
 
 \
-Agora, faça o **upload do arquivo `imdb_top_1000.csv`** para dentro dessa pasta.  
+Agora, faça o [imdb_top_1000.csv](https://github.com/GabrielSouza-git/repo-imdb-csv/blob/main/csv_dataflow_imdb.py) para dentro dessa pasta.  
 <div align="center">
 <img width="1658" height="364" alt="Image" src="https://github.com/user-attachments/assets/50148864-95cd-4749-bcc6-4c498f62afcb" />
 </div>
@@ -122,7 +122,7 @@ pip install -r requirements.txt
 ### Passo 5: Estrutura do código
 Com o bucket e o dataset prontos, chegou a hora de criar o código que vai iniciar o job no Dataflow e fazer todo o processamento dos dados.
 Agora sim é a parte divertida 😎
-Código já pronto: csv_dataflow_imdb.py
+Código já pronto: [csv_dataflow_imdb.py](https://github.com/GabrielSouza-git/repo-imdb-csv/blob/main/csv_dataflow_imdb.py)
 
 #### 5.1 - Importações
 
